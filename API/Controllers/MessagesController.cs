@@ -1,13 +1,6 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using API.DTOs;
-using API.Entities;
-using API.Extensions;
 using API.Helpers;
-using API.Interfaces;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace API.Controllers
 {
@@ -48,6 +41,7 @@ namespace API.Controllers
             };
 
             _unitOfWork.MessageRepository.AddMessage(message);
+
             if (await _unitOfWork.Complete()) return Ok(_mapper.Map<MessageDto>(message));
 
             return BadRequest("Failed to send message");
@@ -73,10 +67,12 @@ namespace API.Controllers
             var message = await _unitOfWork.MessageRepository.GetMessage(id);
 
             if (message.Sender.UserName != username && message.Recipient.UserName != username) return Unauthorized();
+
             if (message.Sender.UserName == username) message.SenderDeleted = true;
             if (message.Recipient.UserName == username) message.RecipientDeleted = true;
             if (message.SenderDeleted && message.RecipientDeleted)
                 _unitOfWork.MessageRepository.DeleteMessage(message);
+
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Problem deleting the message");

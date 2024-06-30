@@ -1,7 +1,7 @@
-using System.Collections.Generic;
+using API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using API.Helpers;
+using System.Collections.Generic;
 
 namespace API.Controllers
 {
@@ -25,6 +25,7 @@ namespace API.Controllers
             var gender = await _unitOfWork.UserRepository.GetUserGender(User.GetUserName());
 
             userParams.CurrentUsername = User.GetUserName();
+
             if (string.IsNullOrEmpty(userParams.Gender))
                 userParams.Gender = gender == "male" ? "female" : "male";
 
@@ -46,9 +47,10 @@ namespace API.Controllers
         {
             var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUserName());
 
-            _mapper.Map(memberUpdateDto, user);
+            _ = _mapper.Map(memberUpdateDto, user);
             _unitOfWork.UserRepository.Update(user);
             if (await _unitOfWork.Complete()) return NoContent();
+
             return BadRequest("Failed to update user");
         }
 
@@ -70,7 +72,9 @@ namespace API.Controllers
             {
                 photo.IsMain = true;
             }
+
             user.Photos.Add(photo);
+
             if (await _unitOfWork.Complete())
             {
                 return CreatedAtRoute("GetUser", new { username = user.UserName }, _mapper.Map<PhotoDto>(photo));
@@ -85,11 +89,17 @@ namespace API.Controllers
             var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUserName());
             var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
 
+            if (photo is null)
+            {
+                return BadRequest("Can not found photo");
+            }
+
             if (photo.IsMain) return BadRequest("This is already your main photo");
 
             var currentMain = user.Photos.FirstOrDefault(x => x.IsMain);
             if (currentMain != null) currentMain.IsMain = false;
             photo.IsMain = true;
+
             if (await _unitOfWork.Complete()) return NoContent();
 
             return BadRequest("Failed to set main photo");
@@ -109,7 +119,7 @@ namespace API.Controllers
                 if (result.Error != null) return BadRequest(result.Error.Message);
             }
 
-            user.Photos.Remove(photo);
+            _ = user.Photos.Remove(photo);
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Failed to delete the photo");

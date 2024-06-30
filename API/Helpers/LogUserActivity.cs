@@ -6,18 +6,18 @@ namespace API.Helpers
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var resultContext = await next();
+            ActionExecutedContext resultContext = await next();
 
             if (!resultContext.HttpContext.User.Identity.IsAuthenticated)
             {
                 return;
             }
 
-            var userId = resultContext.HttpContext.User.GetUserId();
-            var uow = resultContext.HttpContext.RequestServices.GetService<IUnitOfWork>();
-            var user  = await uow.UserRepository.GetUserByIdAsync(userId);
+            int userId = resultContext.HttpContext.User.GetUserId();
+            IUnitOfWork uow = resultContext.HttpContext.RequestServices.GetService<IUnitOfWork>();
+            AppUser user = await uow.UserRepository.GetUserByIdAsync(userId);
             user.LastActive = DateTime.UtcNow;
-            await uow.Complete();
+            _ = await uow.Complete();
         }
     }
 }

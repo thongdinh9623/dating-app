@@ -1,22 +1,17 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using API.DTOs;
-using API.Entities;
-using API.Extensions;
-using API.Interfaces;
-using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 
 namespace API.SignalR
 {
     public class MessageHub : Hub
     {
+        #region Fields
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHubContext<PresenceHub> _presenceHub;
         private readonly PresenceTracker _tracker;
+        #endregion
 
+        #region Constructors
         public MessageHub(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<PresenceHub> presenceHub, PresenceTracker tracker)
         {
             _presenceHub = presenceHub;
@@ -24,7 +19,9 @@ namespace API.SignalR
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+        #endregion
 
+        #region Public Methods
         public override async Task OnConnectedAsync()
         {
             var httpContext = Context.GetHttpContext();
@@ -35,7 +32,7 @@ namespace API.SignalR
             await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
             var messages = await _unitOfWork.MessageRepository.GetMessageThread(Context.User.GetUserName(), otherUser);
 
-            if (_unitOfWork.HasChanges()) await _unitOfWork.Complete();
+            if (_unitOfWork.HasChanges()) _ = await _unitOfWork.Complete();
 
             await Clients.Caller.SendAsync("ReceivedMessageThread", messages);
         }
@@ -89,7 +86,9 @@ namespace API.SignalR
                 await Clients.Group(groupName).SendAsync("NewMessage", _mapper.Map<MessageDto>(message));
             }
         }
+        #endregion
 
+        #region Private Methods
         private async Task<Group> AddToGroup(string groupName)
         {
             var group = await _unitOfWork.MessageRepository.GetMessageGroup(groupName);
@@ -122,5 +121,6 @@ namespace API.SignalR
 
             return stringCompare ? $"{caller}-{other}" : $"{other}-{caller}";
         }
+        #endregion
     }
 }

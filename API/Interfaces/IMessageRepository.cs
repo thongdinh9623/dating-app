@@ -1,22 +1,29 @@
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using API.Entities;
 using API.Helpers;
-using API.DTOs;
+using System.Collections.Generic;
 
 namespace API.Interfaces
 {
     public interface IMessageRepository
     {
         void AddGroup(Group group);
-        void RemoveConnection(Connection connection);
+
         Task<Connection> GetConnection(string connectionId);
+
+        void RemoveConnection(Connection connection);
+
         Task<Group> GetMessageGroup(string groupName);
+
         Task<Group> GetGroupForConnection(string connectionId);
+
         void AddMessage(Message message);
-        void DeleteMessage(Message message);
+
         Task<Message> GetMessage(int id);
+
         Task<PagedList<MessageDto>> GetMessagesForUser(MessageParams messageParams);
-        Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string RecipientUsername);
+
+        Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string recipientUsername);
+
+        void DeleteMessage(Message message);
+
     }
 }

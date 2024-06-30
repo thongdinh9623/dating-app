@@ -1,11 +1,5 @@
-using System.Threading.Tasks;
-using API.Extensions;
-using API.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using API.Entities;
-using API.DTOs;
 using API.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -13,6 +7,7 @@ namespace API.Controllers
     public class LikesController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
+
         public LikesController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -26,6 +21,7 @@ namespace API.Controllers
             var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId);
 
             if (likedUser == null) return NotFound();
+
             if (sourceUser.UserName == username) return BadRequest("You cannot like yourself");
 
             var userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId, likedUser.Id);
@@ -38,6 +34,7 @@ namespace API.Controllers
                 LikedUserId = likedUser.Id
             };
             sourceUser.LikedUsers.Add(userLike);
+
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Failed to like user");

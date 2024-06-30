@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using API.Helpers;
 using AutoMapper.QueryableExtensions;
+using System.Collections.Generic;
 
 namespace API.Data
 {
@@ -18,9 +18,9 @@ namespace API.Data
         public async Task<MemberDto> GetMemberAsync(string username)
         {
             return await _context.Users
-                        .Where(x => x.UserName == username)
-                        .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
-                        .SingleOrDefaultAsync();
+                .Where(x => x.UserName == username)
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync();
         }
 
         public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)

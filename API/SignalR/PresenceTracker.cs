@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace API.SignalR
 {
@@ -26,16 +24,17 @@ namespace API.SignalR
 
             return Task.FromResult(isOnline);
         }
+
         public Task<bool> UserDisconnected(string username, string connectionId)
         {
             bool isOffline = false;
             lock (OnlineUsers)
             {
                 if (!OnlineUsers.ContainsKey(username)) return Task.FromResult(isOffline);
-                OnlineUsers[username].Remove(connectionId);
+                _ = OnlineUsers[username].Remove(connectionId);
                 if (OnlineUsers[username].Count == 0)
                 {
-                    OnlineUsers.Remove(username);
+                    _ = OnlineUsers.Remove(username);
                     isOffline = true;
                 }
             }

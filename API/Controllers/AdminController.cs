@@ -5,6 +5,7 @@ namespace API.Controllers
     public class AdminController : BaseApiController
     {
         private readonly UserManager<AppUser> _userManager;
+
         public AdminController(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
@@ -41,7 +42,9 @@ namespace API.Controllers
             var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
 
             if (!result.Succeeded) return BadRequest("Failed to add to roles");
+
             result = await _userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
+
             if (!result.Succeeded) return BadRequest("Failed to remove from roles");
 
             return Ok(await _userManager.GetRolesAsync(user));
