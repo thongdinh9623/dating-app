@@ -11,8 +11,8 @@ Dating app built with Postgres, ASP.NET Core, Angular.
 `dotnet watch run`
 
 # Run front-end
-`npm i`
-`ng serve`
+`npm i
+ng serve`
 
 # Dockerize app
 `docker run --name postgres -e POSTGRES_PASSWORD=Postgres@123 -p 5432:5432 -d postgres:lastest`
